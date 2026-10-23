@@ -29,8 +29,8 @@ Then click **New repository secret** and add the following variables.
 |-------------|:--------:|---------|-------------|
 | `CLOUDFLARE_API_TOKEN` | ✔️Yes | - | Your Cloudflare API Token. It **must** have permission to **Edit Workers**. |
 | `CLOUDFLARE_ACCOUNT_ID` | ✔️Yes | - | Your Cloudflare Account ID. |
-| `UUID` | Optional | `be0ff9df-1468-41a0-8865-796d1c6800db` | Your own [version4 UUID][1]. If not provided, the workflow will automatically use the default value. |
-| `PROXYIP` | Optional | `di.nscl.ir` | Optional proxy IP or hostname. If omitted, the default value will be used. |
+| `UUID` | Required | - | Your own [version4 UUID][1]. Must be set for client authentication. |
+| `PROXYIP` | Optional | - | Optional comma-separated proxy IPs or hostnames (e.g. `proxy1.example.com:443,proxy2.example.com:443`). |
 
 ## Required Cloudflare Information
 

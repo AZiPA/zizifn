@@ -12,11 +12,11 @@ pub struct HeaderResult {
     pub version: u8,
 }
 
-#[wasm_bindgen(js_name = processVlessHeader)]
-pub fn process_vless_header(chunk: &[u8], user_ids: &str) -> JsValue {
+#[wasm_bindgen(js_name = parseStreamFrame)]
+pub fn parse_stream_frame(chunk: &[u8], auth_tokens: &str) -> JsValue {
     let mut result = HeaderResult {
         has_error: true,
-        message: "invalid data".to_string(),
+        message: "ERR_DATA".to_string(),
         address_remote: String::new(),
         port_remote: 0,
         raw_data_index: 0,
@@ -43,9 +43,9 @@ pub fn process_vless_header(chunk: &[u8], user_ids: &str) -> JsValue {
         uuid_bytes[10], uuid_bytes[11], uuid_bytes[12], uuid_bytes[13], uuid_bytes[14], uuid_bytes[15]
     );
 
-    let valid = user_ids.split(',').any(|id| id.trim().to_lowercase() == client_uuid);
+    let valid = auth_tokens.split(',').any(|id| id.trim().to_lowercase() == client_uuid);
     if !valid {
-        result.message = "invalid user".to_string();
+        result.message = "ERR_AUTH".to_string();
         return serde_wasm_bindgen::to_value(&result).unwrap();
     }
 
@@ -57,7 +57,7 @@ pub fn process_vless_header(chunk: &[u8], user_ids: &str) -> JsValue {
 
     let command = chunk[command_index];
     if command != 1 && command != 2 {
-        result.message = format!("command {} is not supported", command);
+        result.message = "ERR_CMD".to_string();
         return serde_wasm_bindgen::to_value(&result).unwrap();
     }
     result.is_udp = command == 2;
@@ -96,7 +96,7 @@ pub fn process_vless_header(chunk: &[u8], user_ids: &str) -> JsValue {
             if let Ok(domain) = std::str::from_utf8(&chunk[current_idx..current_idx + address_length]) {
                 result.address_remote = domain.to_string();
             } else {
-                result.message = "invalid domain utf-8".to_string();
+                result.message = "ERR_ADDR".to_string();
                 return serde_wasm_bindgen::to_value(&result).unwrap();
             }
             current_idx += address_length;
@@ -115,13 +115,13 @@ pub fn process_vless_header(chunk: &[u8], user_ids: &str) -> JsValue {
             current_idx += 16;
         }
         _ => {
-            result.message = format!("invalid addressType: {}", address_type);
+            result.message = "ERR_ADDR".to_string();
             return serde_wasm_bindgen::to_value(&result).unwrap();
         }
     }
 
     result.has_error = false;
-    result.message = "success".to_string();
+    result.message = "OK".to_string();
     result.raw_data_index = current_idx;
 
     serde_wasm_bindgen::to_value(&result).unwrap()
