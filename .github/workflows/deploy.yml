@@ -1,9 +1,7 @@
-name: Deploy Worker
+name: "☁️ Deploy Worker"
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       proxyip:
